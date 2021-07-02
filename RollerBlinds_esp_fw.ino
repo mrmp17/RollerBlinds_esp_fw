@@ -19,6 +19,10 @@
         //if new  open/close times from homeAssistant, set bNewTimes
 
 
+//čas iz interneta: NTPClient lib ?? , glej example
+//static IP da se wifi poveže hitrej
+
+
 #include <SoftwareSerial.h>
 
 #define COMSER_BAUD 115200
