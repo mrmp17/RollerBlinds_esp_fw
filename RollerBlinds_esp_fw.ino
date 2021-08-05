@@ -103,8 +103,8 @@ void setup() {
     
           comm1Received = true;
     
-          String msg(batteryPct);
-          client.publish(batteryPctTopic, msg.c_str());
+          //String msg(batteryPct);
+          //client.publish(batteryPctTopic, msg.c_str());
         }
         else {
           Serial.println("COMM1 Checksum mismatch");
@@ -140,6 +140,9 @@ void setup() {
   Serial.println("MQTT connected");
   client.subscribe(topicBase, 0);
   client.subscribe(timeTopic, 0);
+
+  String msg(batteryPct);
+  client.publish(batteryPctTopic, msg.c_str());
   
 }
 
