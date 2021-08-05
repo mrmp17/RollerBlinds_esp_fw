@@ -64,8 +64,8 @@ timeStruct downTime = {};
 long manualPos = 0;
 
 bool comm1Received = false;
-byte comm1Length = 10;
-byte comm2Length = 13;
+const byte comm1Length = 10;
+const byte comm2Length = 13;
 
 byte batteryPct = 0;
 
@@ -76,15 +76,45 @@ void setup() {
   comSer.begin(COMSER_BAUD, SWSERIAL_8N1, COMSER_RX_PIN, COMSER_TX_PIN, false, 95, 11);
   comSer.setTimeout(500);
   pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH); //inverted level, turn led off
 
 //  wifi_client.setTimeout(1000);
 //  client.setSocketTimeout(2);
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
   
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(1000);
-  digitalWrite(LED_BUILTIN, LOW);
+  //digitalWrite(LED_BUILTIN, LOW);
+  //delay(1000);
+  //digitalWrite(LED_BUILTIN, HIGH);
+
+  while (!comm1Received) {
+    byte comm1[comm1Length] = {0};
+    byte numReceived = comSer.readBytes(comm1, comm1Length);
+    if (numReceived > 0) {
+          for (int i=0;i<numReceived;i++) {
+            Serial.print(comm1[i]);Serial.print("\t");
+          }
+          Serial.println();
+      if (numReceived == comm1Length) {
+        // COMM1 frame: [bStatus, bPosition, bBatteryPercent, bBatteryDelta, bOpenHr, bOpenMin, bCloseHr, bCloseMin, bRequestTimeRefresh, bSum] len=10
+        byte checksum = std::accumulate(comm1, comm1+comm1Length-1, 0) + 1;
+        if (checksum == comm1[comm1Length-1]) {
+          batteryPct = comm1[2];
+    
+          comm1Received = true;
+    
+          String msg(batteryPct);
+          client.publish(batteryPctTopic, msg.c_str());
+        }
+        else {
+          Serial.println("COMM1 Checksum mismatch");
+        }
+      }
+      else {
+        Serial.println("COMM1 Length mismatch");
+      }
+    }
+  }
 
   Serial.println("Connecting to WiFi");
   WiFi.mode(WIFI_STA);
@@ -116,34 +146,34 @@ void setup() {
 void loop() {
   client.loop();
   
-  if (!comm1Received) {
-    byte comm1[comm1Length] = {0};
-    byte numReceived = comSer.readBytes(comm1, comm1Length);
-    if (numReceived > 0) {
-          for (int i=0;i<numReceived;i++) {
-            Serial.print(comm1[i]);Serial.print("\t");
-          }
-          Serial.println();
-      if (numReceived == comm1Length) {
-        // COMM1 frame: [bStatus, bPosition, bBatteryPercent, bBatteryDelta, bOpenHr, bOpenMin, bCloseHr, bCloseMin, bRequestTimeRefresh, bSum] len=10
-        byte checksum = std::accumulate(comm1, comm1+comm1Length-1, 0) + 1;
-        if (checksum == comm1[comm1Length-1]) {
-          batteryPct = comm1[2];
-    
-          comm1Received = true;
-    
-          String msg(batteryPct);
-          client.publish(batteryPctTopic, msg.c_str());
-        }
-        else {
-          Serial.println("COMM1 Checksum mismatch");
-        }
-      }
-      else {
-        Serial.println("COMM1 Length mismatch");
-      }
-    }
-  }
+//  if (!comm1Received) {
+//    byte comm1[comm1Length] = {0};
+//    byte numReceived = comSer.readBytes(comm1, comm1Length);
+//    if (numReceived > 0) {
+//          for (int i=0;i<numReceived;i++) {
+//            Serial.print(comm1[i]);Serial.print("\t");
+//          }
+//          Serial.println();
+//      if (numReceived == comm1Length) {
+//        // COMM1 frame: [bStatus, bPosition, bBatteryPercent, bBatteryDelta, bOpenHr, bOpenMin, bCloseHr, bCloseMin, bRequestTimeRefresh, bSum] len=10
+//        byte checksum = std::accumulate(comm1, comm1+comm1Length-1, 0) + 1;
+//        if (checksum == comm1[comm1Length-1]) {
+//          batteryPct = comm1[2];
+//    
+//          comm1Received = true;
+//    
+//          String msg(batteryPct);
+//          client.publish(batteryPctTopic, msg.c_str());
+//        }
+//        else {
+//          Serial.println("COMM1 Checksum mismatch");
+//        }
+//      }
+//      else {
+//        Serial.println("COMM1 Length mismatch");
+//      }
+//    }
+//  }
   
   if (gotTime && gotEnableAuto && gotUpTime && gotDownTime && gotManualPos && comm1Received) {
     Serial.println("GOT ALL DATA");
