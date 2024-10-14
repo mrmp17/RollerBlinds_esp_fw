@@ -1,40 +1,20 @@
+# Created by https://www.toptal.com/developers/gitignore/api/platformio,macos,visualstudiocode,windows,linux
+# Edit at https://www.toptal.com/developers/gitignore?templates=platformio,macos,visualstudiocode,windows,linux
 
-# Created by https://www.toptal.com/developers/gitignore/api/macos,windows,c++,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,c++,visualstudiocode
+### Linux ###
+*~
 
-### C++ ###
-# Prerequisites
-*.d
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# KDE directory preferences
+.directory
 
-# Precompiled Headers
-*.gch
-*.pch
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
 
 ### macOS ###
 # General
@@ -65,16 +45,30 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+### macOS Patch ###
+# iCloud generated files
+*.icloud
+
+### PlatformIO ###
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.pio
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-*.code-workspace
+!.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
 .history/
+
+# Built Visual Studio Code Extensions
+*.vsix
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
@@ -107,4 +101,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,windows,c++,visualstudiocode
+# End of https://www.toptal.com/developers/gitignore/api/platformio,macos,visualstudiocode,windows,linux
+
+src/config.h

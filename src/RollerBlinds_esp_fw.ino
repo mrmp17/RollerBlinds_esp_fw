@@ -21,23 +21,28 @@
 #include <SoftwareSerial.h>
 #include <numeric>
 
+#include "config.h"
+
 #define COMSER_BAUD 9600
 #define COMSER_RX_PIN 14
 #define COMSER_TX_PIN 12
 
 // MQTT settings
-const char* ssid = "planinsek";
-const char* password = "cestasnegdrevomoka";
-const char* mqtt_server = "192.168.1.112";
-const char* clientId = "roller_blinds_nejc";
-const char* topicBase = "home/blinds/nejc/#";
-const char* enableTopic = "home/blinds/nejc/enabled";
-const char* upTimeTopic = "home/blinds/nejc/upTime";
-const char* downTimeTopic = "home/blinds/nejc/downTime";
-const char* timeTopic = "home/time";
-const char* setPositionTopic = "home/blinds/nejc/setPos";
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+const char* mqtt_server = MQTT_SERVER;
+const int mqtt_port = MQTT_PORT;
+const char* mqtt_user = MQTT_USER;
+const char* mqtt_password = MQTT_PASSWORD;
+const char* clientId = CLIENT_ID;
+const char* topicBase = TOPIC_BASE;
+const char* enableTopic = ENABLE_TOPIC;
+const char* downTimeTopic = DOWN_TIME_TOPIC;
+const char* upTimeTopic = UP_TIME_TOPIC;
+const char* timeTopic = TIME_TOPIC;
+const char* setPositionTopic = SET_POSITION_TOPIC;
 
-const char* batteryPctTopic = "home/blinds/nejc/battery_pct";
+const char* batteryPctTopic = BATTERY_PCT_TOPIC;
 
 
 SoftwareSerial comSer; //communication serial for comms with stm32 MCU
@@ -67,6 +72,8 @@ bool comm1Received = false;
 const byte comm1Length = 10;
 const byte comm2Length = 13;
 
+byte status = 0;
+byte position = 0;
 byte batteryPct = 0;
 
 void setup() {
@@ -132,7 +139,7 @@ void setup() {
   Serial.println("Connecting to MQQT");
   while(!client.connected()) {
     Serial.print(".");
-    client.connect(clientId);
+    client.connect(clientId, mqtt_user, mqtt_password);
     delay(500);
   }
 
@@ -141,6 +148,7 @@ void setup() {
   client.subscribe(topicBase, 0);
   client.subscribe(timeTopic, 0);
 
+  // Publish to MQTT
   String msg(batteryPct);
   client.publish(batteryPctTopic, msg.c_str());
   
